@@ -297,7 +297,7 @@ namespace RawInput.Touchpad
 			{
 				usUsagePage = 0x000D,
 				usUsage = 0x0005,
-				dwFlags = 0, // WM_INPUT messages come only when the window is in the foreground.
+				dwFlags = 0x00001000, // WM_INPUT messages come only when the window is in the foreground.
 				hwndTarget = windowHandle
 			};
 

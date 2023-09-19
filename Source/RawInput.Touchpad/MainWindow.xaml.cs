@@ -54,8 +54,9 @@ namespace RawInput.Touchpad
 			if (TouchpadExists)
 			{
 				var success = TouchpadHelper.RegisterInput(_targetSource.Handle);
+                Touchpad.StartListening();
 
-				_log.Add($"Precision touchpad registered: {success}");
+                _log.Add($"Precision touchpad registered: {success}");
 			}
 		}
 
@@ -65,7 +66,8 @@ namespace RawInput.Touchpad
 			{
 				case TouchpadHelper.WM_INPUT:
 					var contacts = TouchpadHelper.ParseInput(lParam);
-					TouchpadContacts = string.Join(Environment.NewLine, contacts.Select(x => x.ToString()));
+                    Touchpad.RegisterContact(contacts);
+                    TouchpadContacts = string.Join(Environment.NewLine, contacts.Select(x => x.ToString()));
 
 					_log.Add("---");
 					_log.Add(TouchpadContacts);

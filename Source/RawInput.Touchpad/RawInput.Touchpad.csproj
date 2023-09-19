@@ -10,4 +10,8 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NAudio.Midi" Version="2.2.1" />
+  </ItemGroup>
+
 </Project>
