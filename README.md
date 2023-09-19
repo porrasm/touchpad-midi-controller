@@ -1,23 +1,50 @@
-# RawInput Touchpad
+# Touchpad Midi Controller
 
-Sample to capture inputs from Precision Touchpad by [Raw Input](https://docs.microsoft.com/en-us/windows/win32/inputdev/raw-input) API. This is C# implementation which basically follows C++ function of [TouchpadGestures Advanced][1] by @kamektx to parse inputs from Touchpad including each contact point. Also, [RawInput.Sharp][2] by @mfakane is well sophisticated C# implementation and great help to understand this API. Many thanks!
+An application which transforms touchpad input to MIDI input. This is currently a work in progress. Windows only.
 
-- [kamektx/TouchpadGestures_Advanced][1]
-- [mfakane/rawinput-sharp][2]
+## Features
 
-## Requirements
+- assign different fingers to different CC values (e.g. left most finger is CC 1 and right most CC2 or first finger pressed is CC100 and second finger pressed is CC101). Should work for as many fingers as the touchpad supports. Apple Magic Trackpad supports 5+
+- assign different partitions for the touchpad (e.g. left side is CC1 and right side is CC2).
+- XY slider support
 
-- .NET 5.0
 
-## Example
 
-When five fingers are touching the touchpad of Surface Pro 4 Type Cover, five contacts appear with each coordinates.
+For example you could have 4 different XY sliders such that the top left, top right, bottom left, bottom right are different XY sliders, totaling 8 different CC channels. Of course each area can have the multiple finger support as well, so with 4 partitions and 3 fingers, each using the X and Y axes, you could controls 24 different CC values with this app (not useful probably).
 
-![Screenshot](Images/Screenshot.png)
+One use case I found was that I assigned my first finger Y axis to dynamics and X axis to vibrato. Then I assigned the second pressed finger Y axis to flutter, giving me control of dynamic, vibrato and flutter all with 1 hand using 2 fingers.
 
-## License
+The app is buggy right now and lacks the feature to edit the configuration without touching the code. Once the bugs are fixed this should be ready. 
 
-- MIT License
+## Config type
 
-[1]: https://github.com/kamektx/TouchpadGestures_Advanced
-[2]: https://github.com/mfakane/rawinput-sharp
+The configuration possibilities are illustrated here using Typescript interfaces for clarity.
+
+```Typescript
+interface TouchpadConfig {
+  name: string
+  partitions: TouchpadPartition[]
+}
+
+interface TouchpadPartition {
+  xMin: number
+  xMax: number
+  yMin: number
+  yMax: number
+  fingerOrdering: "pressOrder" | "leftToRight" | "rightToLeft" | "topToBottom" | "bottomToTop"
+  fingers: TouchpadFinger[]
+}
+
+interface TouchpadFinger {
+  xAxis?: TouchAxisConfig
+  yAxis?: TouchAxisConfig
+}
+
+interface TouchAxisConfig {
+  midiCC: number
+  midiChannel: number
+  minCC: number
+  maxCC: number
+  invertValue: boolean
+}
+```
