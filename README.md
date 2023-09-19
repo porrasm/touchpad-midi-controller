@@ -48,3 +48,9 @@ interface TouchAxisConfig {
   invertValue: boolean
 }
 ```
+
+## Requirements
+
+- .net 5.0
+- A windows precision touchpad (e.g. Apple Magic Trackpad with a custom Windows driver: https://github.com/imbushuo/mac-precision-touchpad)
+- A virtual MIDI controller, e.g. LoopBe1 midi or similar
