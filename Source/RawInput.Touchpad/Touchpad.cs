@@ -14,20 +14,23 @@ namespace RawInput.Touchpad {
 
         private static int runIndex = 0;
 
+        public static bool Enabled { get; set; } = false;
+
         static Touchpad() {
-            ApplicationState.OnConfigChanged += StartListening;
+            ApplicationState.OnConfigChanged += Restart;
         }
 
         public static void RegisterContact(TouchpadContact[] contacts) {
             OnContact?.Invoke(contacts);
         }
 
-        public static void StartListening() {
-            if (ApplicationState.Instance == null) {
+        public static void Restart() {
+            StopListening();
+            
+            if (ApplicationState.Instance == null || !Enabled) { 
                 return;
             }
 
-            StopListening();
             midi = new MIDIPlayer();
 
             var config = ApplicationState.Instance.GetSelectedConfig();
@@ -50,7 +53,7 @@ namespace RawInput.Touchpad {
             Task.Run(() => RunLoop(startIndex));
         }
 
-        public static void StopListening() {
+        private static void StopListening() {
             if (midi != null) {
                 midi.Dispose();
                 midi = null;

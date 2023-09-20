@@ -3,7 +3,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		x:Name="WindowRoot"
 		Title="RawInput Touchpad"
-		Height="360" Width="400" ResizeMode="NoResize">
+		Height="360" Width="600" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,6 +13,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
@@ -45,25 +46,30 @@
 				Content="Select MIDI device"
 				Click="Act_SelectMidi"/>
         <Button Grid.Row="3"
-				HorizontalAlignment="Left" Grid.Column="1"
+				HorizontalAlignment="Left" Grid.Column="2"
 				BorderThickness="0" Padding="8,4"
 				Content="Select configuration"
 				Click="Act_SelectConfiguration"/>
-        <Button Grid.Row="3"  Grid.Column="2"
+        <Button Grid.Row="3"  Grid.Column="3"
 				HorizontalAlignment="Left"
 				BorderThickness="0" Padding="8,4"
 				Content="Edit"
 				Click="Act_EditConfiguration" />
-        <Button Grid.Row="3"  Grid.Column="3"
+        <Button Grid.Row="3"  Grid.Column="4"
 				HorizontalAlignment="Left"
 				BorderThickness="0" Padding="8,4"
 				Content="Delete"
 				Click="Act_DeleteConfiguration"/>
-        <Button Grid.Row="3"  Grid.Column="4"
+        <Button Grid.Row="3"  Grid.Column="5"
 				HorizontalAlignment="Left"
 				BorderThickness="0" Padding="8,4"
 				Content="New"
 				Click="Act_NewConfiguration"/>
+        <Button Grid.Row="3"  Grid.Column="1"
+				HorizontalAlignment="Left"
+				BorderThickness="0" Padding="8,4"
+				Content="Toggle MIDI on/off"
+				Click="Act_ToggleMidi"/>
 
         <TextBlock Grid.Row="4" Grid.ColumnSpan="5"
 				   Margin="10"

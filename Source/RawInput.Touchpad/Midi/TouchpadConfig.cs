@@ -51,20 +51,7 @@ namespace RawInput.Touchpad.Midi {
         public TouchpadFinger[] fingers;
 
         public FingerOrdering ParseFingerOrdering() {
-            switch (fingerOrdering) {
-                case "pressOrder":
-                    return FingerOrdering.pressOrder;
-                case "leftToRight":
-                    return FingerOrdering.leftToRight;
-                case "rightToLeft":
-                    return FingerOrdering.rightToLeft;
-                case "topToBottom":
-                    return FingerOrdering.topToBottom;
-                case "bottomToTop":
-                    return FingerOrdering.bottomToTop;
-                default:
-                    throw new Exception("Invalid finger ordering");
-            }
+            return Enum.Parse<FingerOrdering>(fingerOrdering);
         }
 
         public TouchpadPartition() {
@@ -75,7 +62,7 @@ namespace RawInput.Touchpad.Midi {
             try {
                 ParseFingerOrdering();
             } catch (Exception e) {
-                errors.Add("Partition finger ordering must be one of: pressOrder, leftToRight, rightToLeft, topToBottom, bottomToTop");
+                errors.Add("Partition finger ordering must be one of: " + string.Join(", ", Enum.GetNames(typeof(FingerOrdering))));
             }
             if (xMin > xMax) {
                 errors.Add("Partition xMin must be less than or equal to xMax");
@@ -104,6 +91,9 @@ namespace RawInput.Touchpad.Midi {
         // optional
         public SwipeAxisConfig? xSwipe, ySwipe;
 
+        // optional
+        public FingerPairing[]? pairings;
+
         public TouchpadFinger() {
 
         }
@@ -113,6 +103,42 @@ namespace RawInput.Touchpad.Midi {
             yAxis?.Validate(errors);
             xSwipe?.Validate(errors);
             ySwipe?.Validate(errors);
+
+            if (pairings != null) {
+                foreach (var finger in pairings) {
+                    if (finger == null) {
+                        errors.Add("Recursive finger cannot be null");
+                    } else {
+                        finger.Validate(errors);
+                    }
+                }
+            }
+        }
+    }
+
+    public class FingerPairing : IErrorValidatable {
+        public string positionFilter;
+        public TouchpadFinger finger;
+
+        public FingerPairing() {
+
+        }
+
+        public FingerPositionFilter ParsePositionFilter() {
+            return Enum.Parse<FingerPositionFilter>(positionFilter);
+        }
+
+        public void Validate(List<string> errors) {
+            try {
+                ParsePositionFilter();
+            } catch (Exception e) {
+                errors.Add("Finger pairing positionFilter must be one of: " + string.Join(", ", Enum.GetNames(typeof(FingerPositionFilter))));
+            }
+            if (finger == null) {
+                errors.Add("Finger pairing must have a finger");
+            } else {
+                finger.Validate(errors);
+            }
         }
     }
 
@@ -174,6 +200,18 @@ namespace RawInput.Touchpad.Midi {
         topToBottom,
         bottomToTop
     }
+
+    public enum FingerPositionFilter {
+        any,
+        left,
+        right,
+        top,
+        bottom,
+        topLeft,
+        topRight,
+        bottomLeft,
+        bottomRight
+    }
 }
 
 /*
@@ -197,6 +235,12 @@ type TouchpadFinger = {
   yAxis?: TouchAxisConfig
   swipeX?: SwipeAxisConfig
   swipeY?: SwipeAxisConfig
+  recursiveFingers?: FingerPairing[]
+}
+
+type FingerPairing = {
+  positionFilter: "any" | "left" | "right" | "top" | "bottom" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+  finger: TouchpadFinger
 }
 
 type TouchAxisConfig = {

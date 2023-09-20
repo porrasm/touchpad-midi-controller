@@ -17,20 +17,20 @@ namespace RawInput.Touchpad {
     /// Interaction logic for ConfirmDialog.xaml
     /// </summary>
     public partial class ConfirmDialog : Window {
-        public bool Result { get; private set; }
+        private Action onConfirm;
 
-        public ConfirmDialog(string message) {
+        public ConfirmDialog(string message, Action onConfirm) {
             InitializeComponent();
             messageTextBlock.Text = message;
+            this.onConfirm = onConfirm;
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e) {
-            Result = true;
+            onConfirm?.Invoke();
             Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e) {
-            Result = false;
             Close();
         }
     }

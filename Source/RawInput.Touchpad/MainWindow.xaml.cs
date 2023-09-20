@@ -63,7 +63,7 @@ namespace RawInput.Touchpad {
 
             if (TouchpadExists) {
                 var success = TouchpadHelper.RegisterInput(_targetSource.Handle);
-                Touchpad.StartListening();
+                Touchpad.Restart();
 
                 _log.Add($"Precision touchpad registered: {success}");
             }
@@ -78,8 +78,10 @@ namespace RawInput.Touchpad {
             ApplicationState.OnConfigChanged -= Reload;
         }
 
+        private string MidiStateString() => $"{(Touchpad.Enabled ? "Sending to" : "Paused")}: {ApplicationState.Instance.selectedMidiDevice}";
+
         public void Reload() {
-            SelectedMidiDevice = ApplicationState.Instance.selectedMidiDevice;
+            SelectedMidiDevice = MidiStateString();
             SelectedConfiguration = ApplicationState.Instance.selectedConfiguration;
         }
 
@@ -166,19 +168,24 @@ namespace RawInput.Touchpad {
         }
 
         private void Act_DeleteConfiguration(object sender, RoutedEventArgs e) {
-            var dialog = new ConfirmDialog("Are you sure you want to delete this item?");
-            dialog.ShowDialog();
+            var dialog = new ConfirmDialog("Are you sure you want to delete this item?", () => {
+                ApplicationState.Instance.RemoveConfig(ApplicationState.Instance.selectedConfiguration);
+                ApplicationState.Save();
 
-            if (dialog.DialogResult == false) {
-                return;
-            }
-            ApplicationState.Instance.RemoveConfig(ApplicationState.Instance.selectedConfiguration);
-            ApplicationState.Save();
+                
+            });
+            dialog.ShowDialog();
         }
 
         private void Act_NewConfiguration(object sender, RoutedEventArgs e) {
             ApplicationState.Instance.AddConfig(TouchpadConfigs.DefaultConfig());
             ApplicationState.Save();
+        }
+
+        private void Act_ToggleMidi(object sender, RoutedEventArgs e) {
+            Touchpad.Enabled = !Touchpad.Enabled;
+            Touchpad.Restart();
+            Reload();
         }
     }
 }

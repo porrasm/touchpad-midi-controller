@@ -18,8 +18,11 @@ namespace RawInput.Touchpad {
 
         public static Action OnConfigChanged { get; set; }
 
-        private static ApplicationState GetDefaultState() {
-            return new ApplicationState();
+        public static ApplicationState GetDefaultState() {
+            return new ApplicationState() {
+                selectedConfiguration = TouchpadConfigs.DefaultConfig().name,
+                configurations = TouchpadConfigs.GetDefaultConfigs().ToDictionary(c => c.name, c => c),
+            };
         }
 
         private string GetUniqueConfigName() {
@@ -50,9 +53,11 @@ namespace RawInput.Touchpad {
             }
 
             if (configurations.Count == 0 && addDefault) {
-                AddConfig(TouchpadConfigs.DefaultConfig());
+                var defaultState = GetDefaultState();
+                configurations = defaultState.configurations;
+                selectedConfiguration = defaultState.selectedConfiguration;
             }
-            
+
             if (configurations.Count > 0) {
                 selectedConfiguration = configurations.First().Key;
             } else {
