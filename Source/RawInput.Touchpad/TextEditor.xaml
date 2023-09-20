@@ -1,0 +1,12 @@
+﻿<Window x:Class="RawInput.Touchpad.TextEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TextEditor" Height="600" Width="800" ResizeMode="CanResize">
+    <Grid>
+        <TextBox x:Name="textBox" Margin="10" FontFamily="Consolas" AcceptsReturn="True"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button x:Name="OkButton" Content="OK" Click="OkButton_Click" Margin="5"/>
+            <Button x:Name="CancelButton" Content="Cancel" Click="CancelButton_Click" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>

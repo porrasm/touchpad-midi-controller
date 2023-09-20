@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,12 +10,9 @@ namespace RawInput.Touchpad.Midi {
     public class MIDITouchpad {
         private MIDIPlayer midi;
 
-        public byte TouchpadXCC { get; set; } = 57;
-        public byte TouchpadYCC { get; set; } = 61;
-
         public TouchpadConfig Config { get; set; }
 
-        private List<int> pressOrder = new List<int>();
+        public TouchpadContactHistory ContactHistory { get; private set; } = new();
 
         public MIDITouchpad(MIDIPlayer midi, TouchpadConfig config) {
             this.midi = midi;
@@ -23,42 +21,40 @@ namespace RawInput.Touchpad.Midi {
 
         public void TouchpadToMIDI(TouchpadContact[] contacts) {
             if (contacts == null) {
-                UpdatePressOrder(new int[0]);
+                ContactHistory.UpdatePressOrder(new TouchpadContact[0]);
+                ContactHistory.UpdateContactsState(new TouchpadContact[0]);
                 return;
             }
 
-            UpdatePressOrder(contacts.Select(c => c.ContactId).ToArray());
+            ContactHistory.UpdatePressOrder(contacts);
 
             if (contacts.Length == 0) {
+                ContactHistory.UpdateContactsState(contacts);
                 return;
             }
 
             var events = GetEventsFromContacts(contacts);
 
             midi.SendMIDI(events);
+
+            ContactHistory.UpdateContactsState(contacts);
         }
 
-        private void UpdatePressOrder(int[] currentlyPressed) {
-            currentlyPressed = currentlyPressed.Distinct().ToArray();
-            
-            if (currentlyPressed.Length == 0) {
-                pressOrder.Clear();
-                return;
+        public void SendDefaultValues() {
+            List<ControlChangeEvent> events = new List<ControlChangeEvent>();
+
+            foreach (var partition in Config.partitions) {
+                foreach (var finger in partition.fingers) {
+                    if (finger == null) {
+                        continue;
+                    }
+                    
+                    AddDefaultValues(events, finger.xAxis, finger.yAxis, finger.xSwipe, finger.ySwipe);
+                }
             }
 
-            if (pressOrder.Count == 0) {
-                pressOrder.AddRange(currentlyPressed);
-                return;
-            }
-
-            int[] newPresses = currentlyPressed.Except(pressOrder).ToArray();
-            int[] released = pressOrder.Except(currentlyPressed).ToArray();
-
-            pressOrder.AddRange(newPresses);
-            pressOrder.RemoveAll(p => released.Contains(p));
+            midi.SendMIDI(events);
         }
-
-
 
         #region events
         private List<ControlChangeEvent> GetEventsFromContacts(TouchpadContact[] contacts) {
@@ -93,11 +89,40 @@ namespace RawInput.Touchpad.Midi {
 
                 var finger = partition.fingers[i];
 
+                // Axis events
                 if (finger.xAxis != null) {
-                    events.Add(GetFingerEvent(contact.X, partition.xMin, partition.xMax, finger.xAxis));
+                    events.Add(GetFingerAxisEvent(contact.X, partition.xMin, partition.xMax, finger.xAxis));
                 }
                 if (finger.yAxis != null) {
-                    events.Add(GetFingerEvent(contact.Y, partition.yMin, partition.yMax, finger.yAxis));
+                    events.Add(GetFingerAxisEvent(contact.Y, partition.yMin, partition.yMax, finger.yAxis));
+                }
+
+                // Swipe events
+                var deltaExists = ContactHistory.GetContactDelta(contact, out int xDelta, out int yDelta);
+
+                if (!deltaExists) {
+                    continue;
+                }
+
+                if (finger.xSwipe != null) {
+                    events.Add(GetFingerSwipeEvent(xDelta, partition.xMin, partition.xMax, finger.xSwipe));
+                }
+                if (finger.ySwipe != null) {
+                    events.Add(GetFingerSwipeEvent(yDelta, partition.yMin, partition.yMax, finger.ySwipe));
+                }
+            }
+
+            // Default event values
+            for (int i = orderedContacts.Length; i < partition.fingers.Length; i++) {
+                var finger = partition.fingers[i];
+                AddDefaultValues(events, finger.xAxis, finger.yAxis, finger.xSwipe, finger.ySwipe);
+            }
+        }
+
+        private void AddDefaultValues(List<ControlChangeEvent> events, params TouchAxisConfig[] configs) {
+            foreach (var config in configs) {
+                if (config != null && config.defaultValue >= 0) {
+                    events.Add(new ControlChangeEvent(0, config.midiChannel, (MidiController)config.midiCC, config.defaultValue));
                 }
             }
         }
@@ -122,15 +147,38 @@ namespace RawInput.Touchpad.Midi {
             return inNewRange;
         }
 
-        private ControlChangeEvent GetFingerEvent(int contactPos, int partitionMin, int partitionMax, TouchAxisConfig axisConfig) {
+        private ControlChangeEvent GetFingerAxisEvent(int contactPos, int partitionMin, int partitionMax, TouchAxisConfig axisConfig) {
             int ccValue = ValueInRange(contactPos, partitionMin, partitionMax, axisConfig.minCC, axisConfig.maxCC, axisConfig.invertValue);
             return new ControlChangeEvent(0, axisConfig.midiChannel, (MidiController)axisConfig.midiCC, ccValue);
+        }
+
+        private ControlChangeEvent GetFingerSwipeEvent(int contactDelta, int partitionMin, int partitionMax, SwipeAxisConfig swipeConfig) {
+            ControlChangeEvent e = new ControlChangeEvent(0, swipeConfig.midiChannel, (MidiController)swipeConfig.midiCC, 0);
+
+            bool lastValueExists = midi.GetLastValue(e, out int lastValue);
+
+            if (!lastValueExists) {
+                e.ControllerValue = swipeConfig.defaultValue;
+                return e;
+            }
+
+            double deltaAdjusted = 1.0 * contactDelta * swipeConfig.sensitivity;
+
+            if (swipeConfig.invertValue) {
+                deltaAdjusted = -deltaAdjusted;
+            }
+
+            int newValue = Math.Clamp(swipeConfig.defaultValue + (int)deltaAdjusted, swipeConfig.minCC, swipeConfig.maxCC);
+
+            e.ControllerValue = newValue;
+
+            return e;
         }
 
         private TouchpadContact[] GetOrderedContacts(TouchpadContact[] contacts, FingerOrdering ordering) {
             switch (ordering) {
                 case FingerOrdering.pressOrder:
-                    return contacts.OrderBy(c => pressOrder.IndexOf(c.ContactId)).ToArray();
+                    return contacts.OrderBy(c => ContactHistory.GetPressIndexOf(c.ContactId)).ToArray();
                 case FingerOrdering.leftToRight:
                     return contacts.OrderBy(c => c.X).ToArray();
                 case FingerOrdering.rightToLeft:
@@ -141,7 +189,7 @@ namespace RawInput.Touchpad.Midi {
                     return contacts.OrderBy(c => c.Y).ToArray();
                 default:
                     return contacts;
-                    
+
             }
         }
         #endregion
