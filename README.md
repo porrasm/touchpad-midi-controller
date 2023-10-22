@@ -77,9 +77,47 @@ Each config can have multiple partitions. 5 partitions next to each other would 
 
 ### Examples
 
+#### Typical Roland Modwheel + pitch bend: ![image](https://github.com/porrasm/touchpad-midi-controller/assets/31691452/90275862-64fd-4352-9936-000cae976391)
+
+```JSON
+{
+  "name": "Typical Roland Modwheel + pitch bend",
+  "partitions": [
+    {
+      "xMin": 0,
+      "xMax": 7612,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "xSwipe": {
+            "midiCC": 2,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": false,
+            "defaultValue": 64
+          },
+          "ySwipe": {
+            "midiCC": 1,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": 0
+          },
+        }
+      ]
+    }
+  ]
+}
+```
+
+
 #### 5 Y Sliders
 
-````JSON
+```JSON
 {
   "name": "5 Y sliders",
   "partitions": [
