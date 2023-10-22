@@ -8,6 +8,7 @@ An application which transforms touchpad input to MIDI input. This is currently 
 - assign different partitions for the touchpad (e.g. left side is CC1 and right side is CC2).
 - XY slider support
 - Assign a MIDI CC and a MIDI channel. You can assign the output range of the CC values as well (e.g. 0-127 or 50-100)
+- When editing a config that is invalid, the app should give you the list of errors that appear in the config.
 
 For example you could partition the touchpad into 4 different XY sliders such that the top left, top right, bottom left and bottom right areas are different XY sliders, totaling 8 different CC channels. Of course each area can have the multiple finger support as well, so with 4 partitions and 3 fingers, each using the X and Y axes, you could controls 24 different CC values with this app (not useful probably).
 
