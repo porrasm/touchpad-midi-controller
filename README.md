@@ -22,12 +22,12 @@ The app is buggy right now and lacks the feature to edit the configuration witho
 The configuration possibilities are illustrated here using Typescript interfaces for clarity.
 
 ```Typescript
-interface TouchpadConfig {
+type TouchpadConfig = {
   name: string
   partitions: TouchpadPartition[]
 }
 
-interface TouchpadPartition {
+type TouchpadPartition = {
   xMin: number
   xMax: number
   yMin: number
@@ -36,17 +36,29 @@ interface TouchpadPartition {
   fingers: TouchpadFinger[]
 }
 
-interface TouchpadFinger {
+type TouchpadFinger = {
   xAxis?: TouchAxisConfig
   yAxis?: TouchAxisConfig
+  swipeX?: SwipeAxisConfig
+  swipeY?: SwipeAxisConfig
+  recursiveFingers?: FingerPairing[]
 }
 
-interface TouchAxisConfig {
+type FingerPairing = {
+  positionFilter: "any" | "left" | "right" | "top" | "bottom" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+  finger: TouchpadFinger
+}
+
+type TouchAxisConfig = {
   midiCC: number
   midiChannel: number
   minCC: number
   maxCC: number
   invertValue: boolean
+}
+
+type SwipeAxisConfig = TouchAxisConfig & {
+  sensitivity: number
 }
 ```
 
