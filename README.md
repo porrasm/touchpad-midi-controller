@@ -55,12 +55,25 @@ type TouchAxisConfig = {
   minCC: number
   maxCC: number
   invertValue: boolean
+  defaultValue?: number
 }
 
 type SwipeAxisConfig = TouchAxisConfig & {
   sensitivity: number
 }
 ```
+
+Each config can have multiple partitions. 5 partitions next to each other would correspond to a MIDI controller with 5 sliders next to each other.
+
+- `TouchpadPartition`: This type defines the properties of a partition, which is an independent area in which touch events are handled. It has properties such as `xMin`, `xMax`, `yMin`, `yMax`, `fingerOrdering`, and `fingers`. The `fingers` list can be filled to add support for multiple fingers. 
+
+- `TouchpadFinger`: This type defines the properties of a finger, which is a touch point on the touchpad. It has optional properties such as `xAxis`, `yAxis`, `swipeX` and `swipeY` that define what type of MIDI events will be sent by this finger. The `recursiveFingers` property allows you to add a events for the 2nd finger that will be pressed down. This is an alternative for defining multiple `fingers` in `TouchpadPartition`.
+
+- `FingerPairing`: This type defines the properties of a finger pairing, which is a pairing of two fingers that are used together. It has properties such as `positionFilter` and `finger`. The position filter defines when the finger is activated (e.g. if you place 1 finger on the touchpad and another one above the 1st finger then the `top` position filter is active). Currently this requires that the finger stays e.g. above the 2nd finger at all times but this is a bug that will be fixed at some point.
+
+- `TouchAxisConfig`: This type defines the properties of a touch axis, which is a configuration for a touch axis such as the X or Y axis. It has properties such as `midiCC`, `midiChannel`, `minCC`, `maxCC`, `invertValue`, and `defaultValue`. It is basically a MIDI slider that can be moved up and down/left and right. It's values correspond to some MIDI CC and can be clamped. The `defaultValue` is sent (if defined) when the finger is lifted.
+
+- `SwipeAxisConfig`: This type extends `TouchAxisConfig` and adds a `sensitivity` property, which is a configuration for a swipe axis such as the X or Y axis. It is like `TouchAxisConfig`, but it's not a slider. It is like the modwheel on some synths that resets to some position after not being touched. The `defaultValue` is sent (if defined) when the finger is lifted.
 
 ## Requirements
 

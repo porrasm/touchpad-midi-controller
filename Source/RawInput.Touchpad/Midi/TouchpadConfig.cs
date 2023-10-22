@@ -249,6 +249,7 @@ type TouchAxisConfig = {
   minCC: number
   maxCC: number
   invertValue: boolean
+  defaultValue?: number
 }
 
 type SwipeAxisConfig = TouchAxisConfig & {
