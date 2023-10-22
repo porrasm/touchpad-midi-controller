@@ -75,6 +75,220 @@ Each config can have multiple partitions. 5 partitions next to each other would 
 
 - `SwipeAxisConfig`: This type extends `TouchAxisConfig` and adds a `sensitivity` property, which is a configuration for a swipe axis such as the X or Y axis. It is like `TouchAxisConfig`, but it's not a slider. It is like the modwheel on some synths that resets to some position after not being touched. The `defaultValue` is sent (if defined) when the finger is lifted.
 
+### Examples
+
+#### 5 Y Sliders
+
+````JSON
+{
+  "name": "5 Y sliders",
+  "partitions": [
+    {
+      "xMin": 0,
+      "xMax": 1500,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "yAxis": {
+            "midiCC": 1,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": -1
+          },
+          "xSwipe": null,
+          "ySwipe": null
+        }
+      ]
+    },
+    {
+      "xMin": 1500,
+      "xMax": 3000,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "yAxis": {
+            "midiCC": 2,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": -1
+          },
+          "xSwipe": null,
+          "ySwipe": null
+        }
+      ]
+    },
+    {
+      "xMin": 3000,
+      "xMax": 4500,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "yAxis": {
+            "midiCC": 3,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": -1
+          },
+          "xSwipe": null,
+          "ySwipe": null
+        }
+      ]
+    },
+    {
+      "xMin": 4500,
+      "xMax": 6000,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "yAxis": {
+            "midiCC": 4,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": -1
+          },
+          "xSwipe": null,
+          "ySwipe": null
+        }
+      ]
+    },
+    {
+      "xMin": 6000,
+      "xMax": 7612,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "yAxis": {
+            "midiCC": 5,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": -1
+          },
+          "xSwipe": null,
+          "ySwipe": null
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### XY Dynamics & Vibrato w/ aux
+
+```JSON
+{
+  "name": "XY Dynamics & Vibrato w/ aux",
+  "partitions": [
+    {
+      "xMin": 0,
+      "xMax": 7612,
+      "yMin": 0,
+      "yMax": 5065,
+      "fingerOrdering": "pressOrder",
+      "fingers": [
+        {
+          "xAxis": {
+            "midiCC": 57,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": false,
+            "defaultValue": -1
+          },
+          "yAxis": {
+            "midiCC": 61,
+            "midiChannel": 1,
+            "minCC": 0,
+            "maxCC": 127,
+            "invertValue": true,
+            "defaultValue": -1
+          },
+          "xSwipe": null,
+          "ySwipe": null,
+          "pairings": [
+            {
+              "positionFilter": "topLeft",
+              "finger": {
+                "xAxis": null,
+                "yAxis": null,
+                "xSwipe": null,
+                "ySwipe": {
+                  "sensitivity": 0.03,
+                  "midiCC": 49,
+                  "midiChannel": 1,
+                  "minCC": 0,
+                  "maxCC": 127,
+                  "invertValue": true,
+                  "defaultValue": 0
+                },
+                "pairings": null
+              }
+            },
+            {
+              "positionFilter": "topRight",
+              "finger": {
+                "xAxis": null,
+                "yAxis": null,
+                "xSwipe": null,
+                "ySwipe": {
+                  "sensitivity": 0.03,
+                  "midiCC": 3,
+                  "midiChannel": 1,
+                  "minCC": 0,
+                  "maxCC": 127,
+                  "invertValue": true,
+                  "defaultValue": 0
+                },
+                "pairings": null
+              }
+            },
+            {
+              "positionFilter": "bottom",
+              "finger": {
+                "xAxis": null,
+                "yAxis": null,
+                "xSwipe": {
+                  "sensitivity": 0.03,
+                  "midiCC": 60,
+                  "midiChannel": 1,
+                  "minCC": 0,
+                  "maxCC": 127,
+                  "invertValue": false,
+                  "defaultValue": 63
+                },
+                "ySwipe": null,
+                "pairings": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+In this config the first finger functions as an XY slider, assigned to dynamics and vibrato. If 2nd finger is pressed on the top left corner then the Y axis of the 2nd finger functions as a swipe axis (assigned to woodwind growl). If 2nd finger is pressed on the top right corner then the Y axis of the 2nd finger functions as a swipe axis (assigned to woodwind flutter). If 2nd finger is pressed on the bottom then the X axis of the 2nd finger functions as a swipe axis (assigned to pitch bend).
+
 ## Requirements
 
 - .net 5.0
