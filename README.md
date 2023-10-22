@@ -77,7 +77,9 @@ Each config can have multiple partitions. 5 partitions next to each other would 
 
 ### Examples
 
-#### Typical Roland Modwheel + pitch bend: ![image](https://github.com/porrasm/touchpad-midi-controller/assets/31691452/90275862-64fd-4352-9936-000cae976391)
+#### Typical Roland Modwheel + pitch bend: 
+
+![image](https://github.com/porrasm/touchpad-midi-controller/assets/31691452/90275862-64fd-4352-9936-000cae976391)
 
 ```JSON
 {
